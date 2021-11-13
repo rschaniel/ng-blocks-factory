@@ -1,0 +1,26 @@
+{
+  "name": "ng-blocks-factory",
+  "version": "0.0.0",
+  "description": "A blank schematics",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && jasmine src/**/*_spec.js"
+  },
+  "keywords": [
+    "schematics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "schematics": "./src/collection.json",
+  "dependencies": {
+    "@angular-devkit/core": "^13.0.1",
+    "@angular-devkit/schematics": "^13.0.1",
+    "typescript": "~4.4.3"
+  },
+  "devDependencies": {
+    "@schematics/angular": "^13.0.1",
+    "@types/jasmine": "~3.10.0",
+    "@types/node": "^12.11.1",
+    "jasmine": "^3.5.0"
+  }
+}
