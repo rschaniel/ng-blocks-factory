@@ -5,6 +5,11 @@
       "description": "Generate http services",
       "factory": "./http-service/index#httpService",
       "schema": "./http-service/schema.json"
+    },
+    "add-http-call": {
+      "description": "Add http call to existing service",
+      "factory": "./add-http-call/index#addHttpCall",
+      "schema": "./add-http-call/schema.json"
     }
   }
 }
