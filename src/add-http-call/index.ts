@@ -63,7 +63,6 @@ function getLastPositionOfMethod(nodes: ts.Node[], methodName: string) {
     const serviceClassNode = findServiceClassNode(nodes[0]);
     if (!serviceClassNode) {
         throw new SchematicsException(`Did not find a service class node`);
-
     }
 
     const methodNode = findMethodNode(serviceClassNode, methodName);

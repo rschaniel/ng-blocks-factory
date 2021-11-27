@@ -15,16 +15,8 @@
         "index": 0
       }
     },
-    "url": {
-      "type": "string",
-      "$default": {
-        "$source": "argv",
-        "index": 1
-      }
-    }
   },
   "required": [
     "name",
-    "url"
   ]
 }
