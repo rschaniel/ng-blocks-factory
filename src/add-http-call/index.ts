@@ -16,18 +16,13 @@ export function addHttpCall(_options: any): Rule {
         if (!workspaceConfigBuffer) {
             throw new SchematicsException('Not an Angular CLI workspace! The angular.json file is missing');
         }
-        const filePath = determineTargetFilePath(workspaceConfigBuffer, _options);
-
         const methodName = 'getById';
-        const lastPositionOfMethod = getLastPositionOfMethod(tree, filePath, methodName);
 
-        const methodToAdd = 'public newMethod(): void { console.log(\'yeahh\'); }';
-
-        const methodAddChange = new InsertChange(filePath, lastPositionOfMethod! + 1, methodToAdd);
-
-        const declarationRecorder = tree.beginUpdate(filePath);
-        declarationRecorder.insertLeft(methodAddChange.pos, methodAddChange.toAdd);
-        tree.commitUpdate(declarationRecorder);
+        const filePath = determineTargetFilePath(workspaceConfigBuffer, _options);
+        const nodes: ts.Node[] = getASTFromSourceFilePath(tree, filePath);
+        const lastPositionOfMethod = getLastPositionOfMethod(nodes, methodName);
+        const methodAddChange = createInsertChange(filePath, lastPositionOfMethod!);
+        updateTree(tree, filePath, methodAddChange);
 
         return tree;
     };
@@ -52,7 +47,7 @@ function buildDefaultPath(project: any) {
     return `${root}${projectDirName}`;
 }
 
-function getLastPositionOfMethod(tree: Tree, filePath: string, methodName: string) {
+function getASTFromSourceFilePath(tree: Tree, filePath: string): ts.Node[] {
     const content = tree.read(filePath);
     if (!content) {
         throw new SchematicsException(`File ${filePath} does not exist.`);
@@ -61,7 +56,10 @@ function getLastPositionOfMethod(tree: Tree, filePath: string, methodName: strin
     const sourceText = content.toString('utf-8');
     const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true);
     const nodes = getSourceNodes(sourceFile);
+    return nodes;
+}
 
+function getLastPositionOfMethod(nodes: ts.Node[], methodName: string) {
     const serviceClassNode = findServiceClassNode(nodes[0]);
     if (!serviceClassNode) {
         throw new SchematicsException(`Did not find a service class node`);
@@ -75,4 +73,18 @@ function getLastPositionOfMethod(tree: Tree, filePath: string, methodName: strin
 
     const lastPositionOfMethod = getLastPosition(methodNode);
     return lastPositionOfMethod;
+}
+
+function createInsertChange(filePath: string, lastPositionOfMethod: number) {
+    const methodToAdd = 'public create(customer: Customer): Observable<Customer> {\n' +
+        '    return this.http.post<Customer>(this.baseUrl, customer);\n' +
+        '  }';
+    const methodAddChange = new InsertChange(filePath, lastPositionOfMethod! + 1, methodToAdd);
+    return methodAddChange;
+}
+
+function updateTree(tree: Tree, filePath: string, methodAddChange: InsertChange) {
+    const declarationRecorder = tree.beginUpdate(filePath);
+    declarationRecorder.insertLeft(methodAddChange.pos, methodAddChange.toAdd);
+    tree.commitUpdate(declarationRecorder);
 }
